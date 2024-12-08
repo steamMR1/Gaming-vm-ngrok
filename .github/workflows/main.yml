@@ -25,18 +25,7 @@ jobs:
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
 
     - name: Configurar Usuario
-      run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "freeRdpbazzite" -Force)
-
-    - name: Configurar GPU Virtual y CPU Balanceados
-      run: |
-        # Configuración balanceada entre GPU y CPU (simulación)
-        echo "Configurando simulación de GPU: GTX 1080 Ti"
-        echo "Configurando CPU: Intel Core i7-9700K"
-        echo "Ambos componentes tienen suficiente capacidad para evitar bottlenecks."
-        
-        # Simulación de rendimiento (logs para monitoreo)
-        echo "GPU: GTX 1080 Ti - Memoria: 11GB GDDR5X"
-        echo "CPU: Intel Core i7-9700K - 8 núcleos / 8 hilos @ 4.9 GHz"
+      run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd2024!" -Force)
 
     - name: Crear el túnel con Ngrok
       run: .\ngrok\ngrok.exe tcp 3389
