@@ -3,182 +3,172 @@
 <head>
     <title>RetroVerse Arcade</title>
     <style>
-        body{background:#111;color:#fff;font-family:system-ui;margin:0;padding:20px}
-        #screen{width:100%;max-width:800px;height:480px;background:#000;margin:0 auto;image-rendering:pixelated}
-        .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;padding:20px}
-        .game-card{background:#222;padding:10px;border-radius:8px;text-align:center;cursor:pointer;transition:transform .2s}
-        .game-card:hover{transform:scale(1.05)}
-        .game-card img{width:100%;height:150px;object-fit:cover;border-radius:4px}
-        #save-indicator{position:fixed;right:20px;top:20px;background:#28a745;padding:10px;border-radius:4px;display:none}
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            font-family: system-ui;
+            margin: 0;
+            padding: 20px;
+        }
+        #game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        #screen {
+            width: 100%;
+            max-width: 800px;
+            height: 480px;
+            background: #000;
+            margin: 0 auto 20px;
+            display: none;
+        }
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .game-card {
+            background: linear-gradient(145deg, #2a2a2a, #333);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        .game-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .game-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #fff;
+        }
+        .game-info {
+            font-size: 14px;
+            color: #aaa;
+        }
+        #back-button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <canvas id="screen"></canvas>
-    <div id="save-indicator">Progress Saved!</div>
-    <div class="game-grid" id="gameList"></div>
+    <div id="game-container">
+        <button id="back-button">← Back to Games</button>
+        <canvas id="screen"></canvas>
+        <div class="game-grid" id="gameList"></div>
+    </div>
 
     <script>
         const GAMES_DATABASE = {
             nes: [
                 {
                     title: "Super Mario Bros",
-                    image: "data:image/webp;base64,BASE64_IMAGE_DATA",
-                    url: "https://yourcdn.com/roms/mario.nes",
+                    image: "https://example.com/mario.jpg",
+                    url: "https://example.com/roms/mario.nes",
+                    thumbnail: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=",
                     size: "32KB"
                 },
                 {
                     title: "Legend of Zelda",
-                    image: "data:image/webp;base64,BASE64_IMAGE_DATA",
-                    url: "https://yourcdn.com/roms/zelda.nes",
+                    image: "https://example.com/zelda.jpg",
+                    url: "https://example.com/roms/zelda.nes",
+                    thumbnail: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=",
                     size: "128KB"
-                }
-            ],
-            snes: [
-                {
-                    title: "Chrono Trigger",
-                    image: "data:image/webp;base64,BASE64_IMAGE_DATA",
-                    url: "https://yourcdn.com/roms/chrono.sfc",
-                    size: "4MB"
                 }
             ]
         };
 
-        class SaveManager {
-            constructor() {
-                this.autoSaveInterval = 5 * 60 * 1000; // 5 minutes
-                this.setupAutoSave();
-            }
-
-            setupAutoSave() {
-                setInterval(() => this.autoSave(), this.autoSaveInterval);
-                window.addEventListener('beforeunload', (e) => {
-                    this.saveState();
-                    e.preventDefault();
-                    return e.returnValue = 'Do you want to save your progress?';
-                });
-            }
-
-            async saveState() {
-                const state = await emu.getCurrentState();
-                const gameId = emu.currentGame.title;
-                localStorage.setItem(`save_${gameId}`, JSON.stringify(state));
-                this.showSaveIndicator();
-            }
-
-            async loadState(gameId) {
-                const savedState = localStorage.getItem(`save_${gameId}`);
-                if (savedState) {
-                    return JSON.parse(savedState);
-                }
-                return null;
-            }
-
-            autoSave() {
-                if (emu.running) {
-                    this.saveState();
-                }
-            }
-
-            showSaveIndicator() {
-                const indicator = document.getElementById('save-indicator');
-                indicator.style.display = 'block';
-                setTimeout(() => {
-                    indicator.style.display = 'none';
-                }, 2000);
-            }
-        }
-
-        class ROMLoader {
-            constructor() {
-                this.cache = new Map();
-            }
-
-            async loadGame(gameInfo) {
-                if (this.cache.has(gameInfo.url)) {
-                    return this.cache.get(gameInfo.url);
-                }
-
-                const response = await fetch(gameInfo.url);
-                const arrayBuffer = await response.arrayBuffer();
-                const romData = new Uint8Array(arrayBuffer);
-                
-                this.cache.set(gameInfo.url, romData);
-                return romData;
-            }
-
-            async preloadGames() {
-                const priorityGames = Object.values(GAMES_DATABASE)
-                    .flat()
-                    .slice(0, 3); // Preload first 3 games
-
-                await Promise.all(
-                    priorityGames.map(game => 
-                        this.loadGame(game)
-                            .catch(err => console.log(`Preload failed for ${game.title}`))
-                    )
-                );
-            }
-        }
-
-        // Enhanced RetroEmulator with state management
         class RetroEmulator {
             constructor() {
                 this.canvas = document.getElementById("screen");
                 this.ctx = this.canvas.getContext("2d");
-                this.setupGL();
-                this.initAudio();
-                this.bindControls();
-                this.saveManager = new SaveManager();
-                this.romLoader = new ROMLoader();
+                this.backButton = document.getElementById("back-button");
+                this.gameList = document.getElementById("gameList");
                 this.initializeGameList();
+                this.setupEventListeners();
             }
 
-            async initializeGameList() {
-                const gameList = document.getElementById('gameList');
+            initializeGameList() {
                 Object.entries(GAMES_DATABASE).forEach(([system, games]) => {
                     games.forEach(game => {
                         const card = this.createGameCard(game, system);
-                        gameList.appendChild(card);
+                        this.gameList.appendChild(card);
                     });
                 });
-
-                // Start preloading games
-                this.romLoader.preloadGames();
             }
 
             createGameCard(game, system) {
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 card.innerHTML = `
-                    <img src="${game.image}" alt="${game.title}">
-                    <h3>${game.title}</h3>
-                    <p>System: ${system.toUpperCase()}</p>
-                    <p>Size: ${game.size}</p>
+                    <img src="${game.thumbnail}" alt="${game.title}">
+                    <div class="game-title">${game.title}</div>
+                    <div class="game-info">
+                        ${system.toUpperCase()} · ${game.size}
+                    </div>
                 `;
                 card.onclick = () => this.startGame(game, system);
                 return card;
             }
 
-            async startGame(game, system) {
-                this.currentGame = game;
-                const romData = await this.romLoader.loadGame(game);
-                const savedState = await this.saveManager.loadState(game.title);
+            startGame(game, system) {
+                this.canvas.style.display = 'block';
+                this.backButton.style.display = 'block';
+                this.gameList.style.display = 'none';
                 
-                this.loadROM(romData);
-                if (savedState) {
-                    this.loadState(savedState);
+                // Start game emulation
+                this.loadROM(game.url);
+            }
+
+            setupEventListeners() {
+                this.backButton.addEventListener('click', () => {
+                    this.canvas.style.display = 'none';
+                    this.backButton.style.display = 'none';
+                    this.gameList.style.display = 'grid';
+                });
+            }
+
+            async loadROM(url) {
+                try {
+                    const response = await fetch(url);
+                    const romData = await response.arrayBuffer();
+                    this.startEmulation(romData);
+                } catch (error) {
+                    console.log('ROM loading demo mode activated');
+                    this.showDemoScreen();
                 }
             }
 
-            async getCurrentState() {
-                return {
-                    memory: Array.from(this.memory),
-                    registers: this.registers,
-                    timestamp: Date.now()
-                };
+            showDemoScreen() {
+                this.ctx.fillStyle = '#333';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '24px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('Game Demo Mode', this.canvas.width/2, this.canvas.height/2);
             }
         }
 
+        // Initialize the emulator
         const emu = new RetroEmulator();
     </script>
 </body>
